@@ -1,5 +1,6 @@
 gspread
 google-auth
-playwright
+playwright==1.46.0
 bs4
 lxml
+python-dotenv
