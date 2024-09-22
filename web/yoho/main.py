@@ -14,6 +14,7 @@ import utils.gmail as gmail
 import web.yoho.yoho as yh
 from datetime import datetime
 import json
+import time
 from logger.log import Logger as logger
 
 
@@ -49,86 +50,91 @@ def main():
 
         diff_data = {}
         for web in web_list_to_scrape:
-            title, price, rating, stocks = yh.scrape(web["url"])
-            print(title, price, rating, stocks)
-
-            if not data_map.get(web["id"]):
-                # push to google sheet
-                new_row = [
-                    web["id"],
-                    web["url"],
-                    title,
-                    price,
-                    stocks,
-                    rating,
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                ]
-                gspread.insert(worksheet, new_row)
-                continue
-
-            id = web["id"]
-
             try:
-                price = float(price)
-            except ValueError:
-                price = price
+                title, price, rating, stocks = yh.scrape(web["url"])
+                print(title, price, rating, stocks)
 
-            if data_map[web["id"]]["price"] != price:
-                if id in diff_data:
-                    diff_data[id].append(
-                        {
-                            "title": title,
-                            "price": data_map[web["id"]]["price"],
-                            "new_price": price,
-                        }
-                    )
-                else:
-                    diff_data[id] = [
-                        {
-                            "title": title,
-                            "price": data_map[web["id"]]["price"],
-                            "new_price": price,
-                        }
+                if not data_map.get(web["id"]):
+                    # push to google sheet
+                    new_row = [
+                        web["id"],
+                        web["url"],
+                        title,
+                        price,
+                        stocks,
+                        rating,
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     ]
-            if data_map[web["id"]]["rating"] != rating:
-                if id in diff_data:
-                    diff_data[id].append(
-                        {
-                            "title": title,
-                            "rating": data_map[web["id"]]["rating"],
-                            "new_rating": rating,
-                        }
-                    )
-                else:
-                    diff_data[id] = [
-                        {
-                            "title": title,
-                            "rating": data_map[web["id"]]["rating"],
-                            "new_rating": rating,
-                        }
-                    ]
+                    gspread.insert(worksheet, new_row)
+                    continue
 
-            old_stocks = data_map[web["id"]]["stocks"]
-            new_stocks = stocks
-            if f"{old_stocks}" != f"{new_stocks}":
-                if id in diff_data:
-                    diff_data[id].append(
-                        {
-                            "title": title,
-                            "stock": old_stocks,
-                            "new_stock": new_stocks,
-                        }
-                    )
-                else:
-                    diff_data[id] = [
-                        {
-                            "title": title,
-                            "stock": old_stocks,
-                            "new_stock": new_stocks,
-                        }
-                    ]
-            logger.info(f"Scraped data for {title} is done")
-            gspread.update_timestamp_by_id(worksheet, id)
+                id = web["id"]
+
+                try:
+                    price = float(price)
+                except ValueError:
+                    price = price
+
+                if data_map[web["id"]]["price"] != price:
+                    if id in diff_data:
+                        diff_data[id].append(
+                            {
+                                "title": title,
+                                "price": data_map[web["id"]]["price"],
+                                "new_price": price,
+                            }
+                        )
+                    else:
+                        diff_data[id] = [
+                            {
+                                "title": title,
+                                "price": data_map[web["id"]]["price"],
+                                "new_price": price,
+                            }
+                        ]
+                if data_map[web["id"]]["rating"] != rating:
+                    if id in diff_data:
+                        diff_data[id].append(
+                            {
+                                "title": title,
+                                "rating": data_map[web["id"]]["rating"],
+                                "new_rating": rating,
+                            }
+                        )
+                    else:
+                        diff_data[id] = [
+                            {
+                                "title": title,
+                                "rating": data_map[web["id"]]["rating"],
+                                "new_rating": rating,
+                            }
+                        ]
+
+                old_stocks = data_map[web["id"]]["stocks"]
+                new_stocks = stocks
+                if f"{old_stocks}" != f"{new_stocks}":
+                    if id in diff_data:
+                        diff_data[id].append(
+                            {
+                                "title": title,
+                                "stock": old_stocks,
+                                "new_stock": new_stocks,
+                            }
+                        )
+                    else:
+                        diff_data[id] = [
+                            {
+                                "title": title,
+                                "stock": old_stocks,
+                                "new_stock": new_stocks,
+                            }
+                        ]
+                logger.info(f"Scraped data for {title} is done")
+                gspread.update_timestamp_by_id(worksheet, id)
+                time.sleep(1.2)
+            except Exception as e:
+                logger.error(f"Error scraping {web_name} {e}")
+                continue
 
         for id, diffs in diff_data.items():
             for diff in diffs:

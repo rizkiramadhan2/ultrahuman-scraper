@@ -93,6 +93,7 @@ def get_items(soup):
 def scrape_with_selenium(url, **kwargs):
     from selenium import webdriver
     from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.chrome.service import Service
 
     try:
         # Set up Chrome options
@@ -110,8 +111,10 @@ def scrape_with_selenium(url, **kwargs):
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         chrome_options.add_argument(f"user-agent={user_agent}")
 
+        driver_service = Service("/usr/bin/chromedriver")
+
         # Create a new instance of the Chrome driver
-        driver = webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(service=driver_service, options=chrome_options)
 
         # Navigate to the target URL
         driver.get(url)

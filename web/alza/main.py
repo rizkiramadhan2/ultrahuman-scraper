@@ -15,6 +15,7 @@ import utils.gmail as gmail
 import web.alza.alza as alza
 from datetime import datetime
 import json
+import time
 from logger.log import Logger as logger
 
 
@@ -134,7 +135,8 @@ def main():
                                 }
                             ]
                     logger.info(f"Scraped data for {title} is done")
-                    gspread.update_timestamp_by_id(worksheet, id)
+                    gspread.update_timestamp_by_title(worksheet, title)
+                    time.sleep(1.2)
                 except Exception as e:
                     logger.error(f"Error scraping {web['url']} {e}")
                     continue
