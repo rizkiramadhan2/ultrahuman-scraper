@@ -1,0 +1,16 @@
+{
+    "gmail": {
+        "smtp_server": "smtp.gmail.com",
+        "smtp_port": 587,
+        "password": "{{ your app password }}",
+        "sender": "rizki2500@gmail.com"
+    },
+    "gspread": {
+        "credential_path": "/etc/creds/credential.json",
+        "spreadsheet_name": "test-1",
+        "worksheet_names": [
+            "Verizon",
+            "Lazada"
+        ]
+    }
+}
