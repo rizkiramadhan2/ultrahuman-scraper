@@ -4,7 +4,8 @@ from bs4 import BeautifulSoup
 import sys
 from logger.log import Logger as logger
 import random
-from playwright.sync_api import sync_playwright
+
+# from playwright.sync_api import sync_playwright
 import time
 
 

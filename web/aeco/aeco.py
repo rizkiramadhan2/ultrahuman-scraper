@@ -4,7 +4,8 @@ from bs4 import BeautifulSoup
 import sys
 from logger.log import Logger as logger
 import random
-from playwright.sync_api import sync_playwright
+
+# from playwright.sync_api import sync_playwright
 import time
 
 
@@ -79,50 +80,50 @@ def get_rating(soup):
     return "0 Star"
 
 
-def scrape(url, **kwargs):
+# def scrape(url, **kwargs):
 
-    try:
-        # Launch Playwright and browser
-        with sync_playwright() as p:
-            # Open a new browser window (Chromium in this case)
-            browser = p.webkit.launch(
-                headless=True,
-                # args=["--disable-http2"],
-            )  # Set headless=False if you want to see the browser in action
+#     try:
+#         # Launch Playwright and browser
+#         with sync_playwright() as p:
+#             # Open a new browser window (Chromium in this case)
+#             browser = p.webkit.launch(
+#                 headless=True,
+#                 # args=["--disable-http2"],
+#             )  # Set headless=False if you want to see the browser in action
 
-            # Create proxy settings if provided
-            # TODO: Add proxy server details
-            proxy_server = ""
-            proxy = {"server": proxy_server} if proxy_server else None
+#             # Create proxy settings if provided
+#             # TODO: Add proxy server details
+#             proxy_server = ""
+#             proxy = {"server": proxy_server} if proxy_server else None
 
-            # Create a new browser context with a custom user agent
-            context = browser.new_context(
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                proxy=proxy,
-            )
-            page = context.new_page()
+#             # Create a new browser context with a custom user agent
+#             context = browser.new_context(
+#                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+#                 proxy=proxy,
+#             )
+#             page = context.new_page()
 
-            # Navigate to the target URL
-            page.goto(url, wait_until="domcontentloaded")
+#             # Navigate to the target URL
+#             page.goto(url, wait_until="domcontentloaded")
 
-            page.screenshot(path="screenshot.png")
+#             page.screenshot(path="screenshot.png")
 
-            # Get the page content (fully loaded)
+#             # Get the page content (fully loaded)
 
-            content = page.content()
+#             content = page.content()
 
-            # Close the browser
-            browser.close()
+#             # Close the browser
+#             browser.close()
 
-        soup = BeautifulSoup(content, "html.parser")
+#         soup = BeautifulSoup(content, "html.parser")
 
-        stocks = get_stock(soup)
+#         stocks = get_stock(soup)
 
-        return stocks
+#         return stocks
 
-    except Exception as e:
-        logger.info(f"An error occurred: {e}")
-        sys.exit(1)
+#     except Exception as e:
+#         logger.info(f"An error occurred: {e}")
+#         sys.exit(1)
 
 
 def scrape_with_selenium(url, **kwargs):
