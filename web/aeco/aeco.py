@@ -123,3 +123,57 @@ def scrape(url, **kwargs):
     except Exception as e:
         logger.info(f"An error occurred: {e}")
         sys.exit(1)
+
+
+def scrape_with_selenium(url, **kwargs):
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+
+    try:
+        # Set up Chrome options
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")  # Run Chrome in headless mode
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument(
+            "--disable-http2"
+        )  # Example of adding a custom argument
+
+        # Proxy settings (optional)
+        proxy_server = kwargs.get("proxy_server", "")
+        if proxy_server:
+            chrome_options.add_argument(f"--proxy-server={proxy_server}")
+
+        # Create a new instance of the Chrome driver
+        driver = webdriver.Chrome(options=chrome_options)
+
+        # Set custom user agent (optional)
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        chrome_options.add_argument(f"user-agent={user_agent}")
+
+        # Navigate to the target URL
+        driver.get(url)
+
+        # Wait for the page to load (if needed)
+        driver.implicitly_wait(10)
+
+        # Take a screenshot (optional)
+        driver.save_screenshot("screenshot.png")
+
+        # Get the page content (fully loaded)
+        content = driver.page_source
+
+        # Close the browser
+        driver.quit()
+
+        # Use BeautifulSoup to parse the content
+        soup = BeautifulSoup(content, "html.parser")
+
+        # Extract stock data (assuming get_stock is your custom function)
+        stocks = get_stock(soup)
+
+        return stocks
+
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        sys.exit(1)

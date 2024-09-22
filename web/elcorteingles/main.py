@@ -48,7 +48,7 @@ def main():
 
         diff_data = {}
         for web in web_list_to_scrape:
-            res = eci.scrape(web["url"])
+            res = eci.scrape_with_selenium(web["url"])
             for r in res:
                 title = r.get("title", "")
                 price = r.get("price", "")

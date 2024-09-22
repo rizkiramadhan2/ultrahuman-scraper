@@ -50,7 +50,7 @@ def main():
 
         diff_data = {}
         for web in web_list_to_scrape:
-            items = alza.scrape(web["url"])
+            items = alza.scrape_with_selenium(web["url"])
 
             #     stock_str = ""
             #     for stock in stocks:

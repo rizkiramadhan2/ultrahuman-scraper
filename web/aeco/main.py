@@ -49,7 +49,7 @@ def main():
 
         diff_data = {}
         for web in web_list_to_scrape:
-            items = aeco.scrape(web["url"])
+            items = aeco.scrape_with_selenium(web["url"])
             for item in items:
                 title = web["id"] + " - " + item.get("size", "")
                 price = item.get("price", "")
