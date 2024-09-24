@@ -82,10 +82,37 @@ def insert_with_retry(worksheet, new_row, max_retries=5):
     sys.exit(1)
 
 
+def get_all_values_with_retries(worksheet):
+    retries = 0
+    while retries < 5:
+        try:
+            return worksheet.get_all_values()
+        except Exception as e:
+            retries += 1
+            wait_time = 2**retries  # Exponential backoff
+            logger.warning(f"Quota exceeded. Retrying in {wait_time} seconds...")
+            time.sleep(wait_time)
+    logger.error("get_all_values_with_retries Max retries exceeded")
+
+
+def update_cell_with_retry(sheet, row, column, value, max_retries=5):
+    retries = 0
+    while retries < max_retries:
+        try:
+            sheet.update_cell(row, column, value)
+            return None
+        except Exception as e:
+            retries += 1
+            wait_time = 2**retries  # Exponential backoff
+            logger.warning(f"Quota exceeded. Retrying in {wait_time} seconds...")
+            time.sleep(wait_time)
+    logger.error("update_cell_with_retry Max retries exceeded")
+
+
 # Function to update a cell based on an ID and a column name
 def update_cell_by_id(sheet, id_value, column_name, new_value):
     # Get all values from the sheet
-    all_values = sheet.get_all_values()
+    all_values = get_all_values_with_retries(sheet)
 
     # Find the header row (assumed to be the first row)
     headers = all_values[0]
@@ -100,9 +127,9 @@ def update_cell_by_id(sheet, id_value, column_name, new_value):
     for row_index, row in enumerate(all_values[1:], start=2):  # Skip the header row
         if row[0] == str(id_value):  # Assuming ID is in the first column
             # Update the cell with the new value
-            sheet.update_cell(row_index, column_index, new_value)
-            sheet.update_cell(
-                row_index, 7, datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            update_cell_with_retry(sheet, row_index, column_index, new_value)
+            update_cell_with_retry(
+                sheet, row_index, 7, datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             )
 
             logger.info(
@@ -116,7 +143,7 @@ def update_cell_by_id(sheet, id_value, column_name, new_value):
 
 def update_cell_by_title(sheet, title, column_name, new_value):
     # Get all values from the sheet
-    all_values = sheet.get_all_values()
+    all_values = get_all_values_with_retries(sheet)
 
     # Find the header row (assumed to be the first row)
     headers = all_values[0]
@@ -131,9 +158,9 @@ def update_cell_by_title(sheet, title, column_name, new_value):
     for row_index, row in enumerate(all_values[1:], start=2):  # Skip the header row
         if row[2] == title:
             # Update the cell with the new value
-            sheet.update_cell(row_index, column_index, new_value)
-            sheet.update_cell(
-                row_index, 7, datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            update_cell_with_retry(sheet, row_index, column_index, new_value)
+            update_cell_with_retry(
+                sheet, row_index, 7, datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             )
 
             logger.info(
@@ -144,7 +171,7 @@ def update_cell_by_title(sheet, title, column_name, new_value):
 
 def update_timestamp_by_title(sheet, title):
     # Get all values from the sheet
-    all_values = sheet.get_all_values()
+    all_values = get_all_values_with_retries(sheet)
 
     # Find the header row (assumed to be the first row)
     headers = all_values[0]
@@ -160,8 +187,11 @@ def update_timestamp_by_title(sheet, title):
     for row_index, row in enumerate(all_values[1:], start=2):  # Skip the header row
         if row[2] == title:
             # Update the cell with the new value
-            sheet.update_cell(
-                row_index, column_index, datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            update_cell_with_retry(
+                sheet,
+                row_index,
+                column_index,
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             )
 
             logger.info(f"Updated row {row_index}, column {column_name}")
@@ -170,7 +200,7 @@ def update_timestamp_by_title(sheet, title):
 
 def update_timestamp_by_id(sheet, id_value):
     # Get all values from the sheet
-    all_values = sheet.get_all_values()
+    all_values = get_all_values_with_retries(sheet)
 
     # Find the header row (assumed to be the first row)
     headers = all_values[0]
@@ -186,8 +216,11 @@ def update_timestamp_by_id(sheet, id_value):
     for row_index, row in enumerate(all_values[1:], start=2):  # Skip the header row
         if row[0] == str(id_value):
             # Update the cell with the new value
-            sheet.update_cell(
-                row_index, column_index, datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            update_cell_with_retry(
+                sheet,
+                row_index,
+                column_index,
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             )
 
             logger.info(f"Updated row {row_index}, column {column_name}")
