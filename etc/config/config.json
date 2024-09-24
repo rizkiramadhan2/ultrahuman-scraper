@@ -7,7 +7,7 @@
     },
     "gspread": {
         "credential_path": "/etc/creds/credential.json",
-        "spreadsheet_name": "test-1",
+        "spreadsheet_name": "test-2",
         "worksheet_names": [
             "Verizon",
             "Lazada"
