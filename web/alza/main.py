@@ -134,7 +134,7 @@ def main():
                                 }
                             ]
                     logger.info(f"Scraped data for {title} is done")
-                    gspread.update_timestamp_by_title(worksheet, title)
+                    gspread.update_timestamp_by_id(worksheet, id)
                 except Exception as e:
                     logger.error(f"Error scraping {web['url']} {e}")
                     continue
