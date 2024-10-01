@@ -4,7 +4,8 @@ from bs4 import BeautifulSoup
 import sys
 from logger.log import Logger as logger
 import random
-from playwright.sync_api import sync_playwright
+
+# from playwright.sync_api import sync_playwright
 import time, json
 
 
@@ -77,48 +78,102 @@ def get_rating(soup):
     return "0 Star"
 
 
-def scrape(url, **kwargs):
+# def scrape(url, **kwargs):
 
+#     try:
+#         # Launch Playwright and browser
+#         with sync_playwright() as p:
+#             # Open a new browser window (Chromium in this case)
+#             browser = p.chromium.launch(
+#                 headless=False,
+#                 # args=["--disable-http2"],
+#             )  # Set headless=False if you want to see the browser in action
+
+#             # Create proxy settings if provided
+#             # TODO: Add proxy server details
+#             proxy_server = ""
+#             proxy = {"server": proxy_server} if proxy_server else None
+
+#             # Create a new browser context with a custom user agent
+#             context = browser.new_context(
+#                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+#                 proxy=proxy,
+#             )
+#             page = context.new_page()
+
+#             # Navigate to the target URL
+#             page.goto(url, wait_until="domcontentloaded")
+
+#             # Click on the radio button with the value "7號"
+#             # page.click('input[name="大小"][value="7號"]')
+
+#             # Get the page content (fully loaded)
+
+#             content = page.content()
+
+#             # Close the browser
+#             browser.close()
+
+#         soup = BeautifulSoup(content, "html.parser")
+
+#         products = get_products(soup)
+
+#         return products
+
+#     except Exception as e:
+#         logger.info(f"An error occurred: {e}")
+#         sys.exit(1)
+
+
+def scrape_with_selenium(url, **kwargs):
     try:
-        # Launch Playwright and browser
-        with sync_playwright() as p:
-            # Open a new browser window (Chromium in this case)
-            browser = p.chromium.launch(
-                headless=False,
-                # args=["--disable-http2"],
-            )  # Set headless=False if you want to see the browser in action
+        from selenium import webdriver
+        from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.chrome.service import Service
 
-            # Create proxy settings if provided
-            # TODO: Add proxy server details
-            proxy_server = ""
-            proxy = {"server": proxy_server} if proxy_server else None
+        # Set up Chrome options
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")  # Run Chrome in headless mode
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
 
-            # Create a new browser context with a custom user agent
-            context = browser.new_context(
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-                proxy=proxy,
-            )
-            page = context.new_page()
+        # Create proxy settings if provided
+        proxy_server = kwargs.get("proxy_server", "")
+        if proxy_server:
+            chrome_options.add_argument(f"--proxy-server={proxy_server}")
 
-            # Navigate to the target URL
-            page.goto(url, wait_until="domcontentloaded")
+        # Set custom user agent
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        chrome_options.add_argument(f"user-agent={user_agent}")
 
-            # Click on the radio button with the value "7號"
-            # page.click('input[name="大小"][value="7號"]')
+        driver_service = Service("/usr/bin/chromedriver")
 
-            # Get the page content (fully loaded)
+        # Create a new instance of the Chrome driver
+        driver = webdriver.Chrome(service=driver_service, options=chrome_options)
 
-            content = page.content()
+        # Navigate to the target URL
+        driver.get(url)
 
-            # Close the browser
-            browser.close()
+        # Wait for the page to load (5 seconds)
+        time.sleep(5)
 
+        # Take a screenshot
+        driver.save_screenshot("screenshot.png")
+
+        # Get the page content (fully loaded)
+        content = driver.page_source
+
+        # Close the browser
+        driver.quit()
+
+        # Use BeautifulSoup to parse the content
         soup = BeautifulSoup(content, "html.parser")
 
-        products = get_products(soup)
+        # Extract items (assuming get_item is your custom function)
+        res = get_products(soup)
 
-        return products
+        return res
 
     except Exception as e:
-        logger.info(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
         sys.exit(1)
