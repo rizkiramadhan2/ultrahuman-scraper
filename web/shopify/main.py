@@ -49,7 +49,7 @@ def main():
 
         diff_data = {}
         for web in web_list_to_scrape:
-            products = shopify.scrape(web["url"])
+            products = shopify.scrape_with_selenium(web["url"])
             for product in products:
                 id = product.get("id", "")
                 size = product.get("option1", "").replace("號", "")
