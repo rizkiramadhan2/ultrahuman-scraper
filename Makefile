@@ -7,6 +7,7 @@ AECO = $(shell pwd)/web/aeco/main.py
 ALZA = $(shell pwd)/web/alza/main.py
 ELCORTEINGLES = $(shell pwd)/web/elcorteingles/main.py
 YOHO = $(shell pwd)/web/yoho/main.py
+SHOPIFY = $(shell pwd)/web/shopify/main.py
 
 LOG_DIR = $(shell pwd)/logs
 
@@ -15,7 +16,8 @@ cron:
 	@{ crontab -l; echo "0 5 * * * /bin/bash -c 'source $(VENV_PATH) && python $(AECO)' >> $(LOG_DIR)/aeco.log 2>&1"; } | crontab -
 	@{ crontab -l; echo "5 5 * * * /bin/bash -c 'source $(VENV_PATH) && python $(ALZA)' >> $(LOG_DIR)/alza.log 2>&1"; } | crontab -
 	@{ crontab -l; echo "10 5 * * * /bin/bash -c 'source $(VENV_PATH) && python $(ELCORTEINGLES)' >> $(LOG_DIR)/elcorteingles.log 2>&1"; } | crontab -
-	@{ crontab -l; echo " 15 * * * /bin/bash -c 'source $(VENV_PATH) && python $(YOHO)' >> $(LOG_DIR)/yoho.log 2>&1"; } | crontab -
+	@{ crontab -l; echo "15 5 * * * /bin/bash -c 'source $(VENV_PATH) && python $(YOHO)' >> $(LOG_DIR)/yoho.log 2>&1"; } | crontab -
+	@{ crontab -l; echo "20 5 * * /bin/bash -c 'source $(VENV_PATH) && python $(SHOPIFY)' >> $(LOG_DIR)/shopify.log 2>&1"; } | crontab -
 	@echo "Cron jobs applied successfully."
 
 install:
