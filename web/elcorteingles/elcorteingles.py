@@ -24,7 +24,7 @@ def get_item(soup):
         else:
             title = "Title not found"
 
-        price = item_title.select_one("span.price-unit--normal")
+        price = item.find("span", class_="price-unit--normal")
         if price:
             price = price.text
         else:
@@ -34,12 +34,13 @@ def get_item(soup):
         # rating = item.select_one("div.bazaar_voice__stars")
         # print(rating, "rating")
 
-        result.append(
-            {
-                "title": title,
-                "price": price,
-            }
-        )
+        if title != "Title not found":
+            result.append(
+                {
+                    "title": title,
+                    "price": price,
+                }
+            )
 
     return result
 
